@@ -1,11 +1,10 @@
 package com.example.hanghaespring2.common.entity;
 
-import com.example.hanghaespring2.account.dto.AccountDto;
+import com.example.hanghaespring2.auth.dto.AuthDto;
 import com.example.hanghaespring2.user.dto.UserDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -34,8 +33,15 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", fetch = LAZY)
     List<Post> postList = new ArrayList<>();
 
+    public void addPost(Post post) {
+        this.postList.add(post);
+        if (post.getUser() != this) {
+            post.setUser(this);
+        }
+    }
+
     @Builder
-    public User(AccountDto.UserAdd dto) {
+    public User(AuthDto.UserAdd dto) {
         this.username = dto.getUsername();
         this.password = dto.getPassword();
         this.role = dto.getRole();

@@ -1,4 +1,4 @@
-package com.example.hanghaespring2.jwt;
+package com.example.hanghaespring2.common.jwt;
 
 
 import io.jsonwebtoken.*;

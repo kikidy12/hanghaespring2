@@ -1,4 +1,4 @@
-package com.example.hanghaespring2.config;
+package com.example.hanghaespring2.common.config;
 
 
 import io.swagger.v3.oas.models.Components;
@@ -37,8 +37,7 @@ public class SwaggerConfig {
                 .contact(new Contact()
                         .name("권성민"));
 
-//        return new OpenAPI().info(info).addSecurityItem(securityRequirement)
-//                .components(components);
-        return new OpenAPI().info(info);
+        return new OpenAPI().info(info).addSecurityItem(securityRequirement)
+                .components(components);
     }
 }
