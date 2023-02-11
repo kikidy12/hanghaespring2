@@ -1,6 +1,7 @@
 package com.example.hanghaespring2.common.entity;
 
 import com.example.hanghaespring2.post.dto.PostDto;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,10 +37,9 @@ public class Post extends Timestamped {
 
 
     @Builder
-    public Post(PostDto.PostAdd dto, User user) {
+    public Post(PostDto.PostAdd dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
-        setUser(user);
     }
 
     public PostDto.PostRes res () {

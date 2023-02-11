@@ -2,18 +2,18 @@ package com.example.hanghaespring2.common.entity;
 
 import com.example.hanghaespring2.auth.dto.AuthDto;
 import com.example.hanghaespring2.user.dto.UserDto;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "users")
 public class User extends Timestamped {
     @Id
@@ -31,11 +31,11 @@ public class User extends Timestamped {
     private UserRoleEnum role;
 
     @OneToMany(mappedBy = "user", fetch = LAZY)
-    List<Post> postList = new ArrayList<>();
+    List<Post> postList;
 
     public void addPost(Post post) {
         this.postList.add(post);
-        if (post.getUser() != this) {
+        if (!post.getUser().equals(this)) {
             post.setUser(this);
         }
     }

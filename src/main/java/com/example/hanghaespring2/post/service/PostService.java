@@ -1,7 +1,9 @@
 package com.example.hanghaespring2.post.service;
 
+import com.example.hanghaespring2.auth.service.CustomUserDetailService;
 import com.example.hanghaespring2.common.entity.Post;
 import com.example.hanghaespring2.common.entity.User;
+import com.example.hanghaespring2.common.util.SecurityService;
 import com.example.hanghaespring2.post.dto.PostDto;
 import com.example.hanghaespring2.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,20 +23,16 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final SecurityService securityService;
 
     @Transactional
     public PostDto.PostRes addPost(PostDto.PostAdd dto) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("No authentication information.");
-        }
+        User user = securityService.getUser();
 
-        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(
-                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-        );
+        Post post = Post.builder().dto(dto).build();
 
-        Post post = Post.builder().dto(dto).user(user).build();
+        post.setUser(user);
 
         return this.postRepository.save(post).res();
     }
@@ -42,14 +40,7 @@ public class PostService {
     @Transactional
     public PostDto.PostRes updatePost(Long id, PostDto.PostUpdate dto) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("No authentication information.");
-        }
-
-        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(
-                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-        );
+        User user = securityService.getUser();
 
         Post post = this.postRepository.findByIdAndUser_id(id, user.getId()).orElseThrow(() ->
             new IllegalArgumentException("게시글이 존재하지 않습니다.")
@@ -63,14 +54,7 @@ public class PostService {
     @Transactional
     public void deletePost(Long id) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("No authentication information.");
-        }
-
-        User user = userRepository.findByUsername(authentication.getName()).orElseThrow(
-                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
-        );
+        User user = securityService.getUser();
 
         Post post = this.postRepository.findByIdAndUser_id(id, user.getId()).orElseThrow(() ->
                 new IllegalArgumentException("게시글이 존재하지 않습니다.")
