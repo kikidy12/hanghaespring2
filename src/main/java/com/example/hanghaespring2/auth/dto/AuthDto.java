@@ -1,16 +1,14 @@
-package com.example.hanghaespring2.account.dto;
+package com.example.hanghaespring2.auth.dto;
 
-import com.example.hanghaespring2.common.entity.User;
 import com.example.hanghaespring2.common.entity.UserRoleEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
-public class AccountDto {
+public class AuthDto {
     @Getter
     @Setter
     @Builder

@@ -1,4 +1,4 @@
-package com.example.hanghaespring2.account.service;
+package com.example.hanghaespring2.auth.service;
 
 import com.example.hanghaespring2.common.entity.User;
 import com.example.hanghaespring2.user.repository.UserRepository;

@@ -1,9 +1,8 @@
-package com.example.hanghaespring2.account.service;
+package com.example.hanghaespring2.auth.service;
 
-import com.example.hanghaespring2.account.dto.AccountDto;
-import com.example.hanghaespring2.account.repository.AccountRepository;
+import com.example.hanghaespring2.auth.dto.AuthDto;
 import com.example.hanghaespring2.common.entity.User;
-import com.example.hanghaespring2.jwt.TokenProvider;
+import com.example.hanghaespring2.common.jwt.TokenProvider;
 import com.example.hanghaespring2.user.dto.UserDto;
 import com.example.hanghaespring2.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +17,17 @@ import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AccountService {
-    private final AccountRepository accountRepository;
+public class AuthService {
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final TokenProvider tokenProvider;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final UserRepository userRepository;
 
     @Transactional
-    public UserDto.UserRes addUser(AccountDto.UserAdd dto) {
-        accountRepository.findByUsername(dto.getUsername()).ifPresent(v -> {
+    public UserDto.UserRes addUser(AuthDto.UserAdd dto) {
+        userRepository.findByUsername(dto.getUsername()).ifPresent(v -> {
             throw new NullPointerException("중복된 사용자가 존재합니다.");
         });
 
@@ -38,11 +36,11 @@ public class AccountService {
 
         User user = User.builder().dto(dto).build();
 
-        return this.accountRepository.save(user).res();
+        return this.userRepository.save(user).res();
     }
 
 
-    public UserDto.UserRes login(AccountDto.Login dto, HttpServletResponse response) {
+    public UserDto.UserRes login(AuthDto.Login dto, HttpServletResponse response) {
 
         User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(() ->
                 new IllegalArgumentException("등록된 사용자가 없습니다.")
