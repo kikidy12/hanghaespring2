@@ -35,7 +35,7 @@ public class TokenProvider {
     private final Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    public TokenProvider(@Value("${JWT_SCRET_KEY}") String secretKey) {
+    public TokenProvider(@Value("${jwt.secret.key}") String secretKey) {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
