@@ -30,7 +30,7 @@ public class Post extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> replies;
 
     public void setUser(User user) {
@@ -49,6 +49,13 @@ public class Post extends Timestamped {
             reply.setPost(this);
         }
     }
+
+//    @PreRemove
+//    private void removeAssociationsWithChilds() {
+//        for (Reply e : replies) {
+//            e.setPostNull();
+//        }
+//    }
 
 
     @Builder

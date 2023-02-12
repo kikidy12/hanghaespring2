@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.util.comparator.Comparators;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,7 +52,7 @@ public class PostDto {
             this.title = title;
             this.content = content;
             this.username = username;
-            this.replies = replies.stream().sorted((a,b) ->
+            this.replies = ObjectUtils.defaultIfNull(replies, new ArrayList<Reply>()).stream().sorted((a, b) ->
                     b.getCreatedAt().compareTo(a.getCreatedAt())
             ).map(Reply::res).collect(Collectors.toList());
             this.createdAt = createdAt;
