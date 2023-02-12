@@ -3,6 +3,7 @@ package com.example.hanghaespring2.common.jwt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -11,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
@@ -33,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwt = resolveToken(request);
         String requestURI = request.getRequestURI();
 
-        if (StringUtils.hasText(jwt)) {
+        if (jwt != null) {
             if (tokenProvider.validateToken(jwt)) {
                 // 토큰에서 유저네임, 권한을 뽑아 스프링 시큐리티 유저를 만들어 Authentication 반환
                 Authentication authentication = tokenProvider.getAuthentication(jwt);
@@ -41,8 +44,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
             }
-        } else {
-            log.error("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+            else {
+                log.error("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+            }
         }
 
         filterChain.doFilter(request, response);

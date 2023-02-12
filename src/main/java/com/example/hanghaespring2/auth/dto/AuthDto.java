@@ -27,8 +27,9 @@ public class AuthDto {
     @Builder
     public static class Login {
 
+        @Schema(defaultValue = "test1234")
         private final String username;
-
+        @Schema(defaultValue = "test1234")
         private String password;
 
         private final UserRoleEnum role;

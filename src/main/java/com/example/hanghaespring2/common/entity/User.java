@@ -33,10 +33,20 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", fetch = LAZY)
     List<Post> postList;
 
+    @OneToMany(mappedBy = "user", fetch = LAZY)
+    private List<Reply> replies;
+
     public void addPost(Post post) {
         this.postList.add(post);
         if (!post.getUser().equals(this)) {
             post.setUser(this);
+        }
+    }
+
+    public void addReply(Reply reply) {
+        this.replies.add(reply);
+        if (!reply.getUser().equals(this)) {
+            reply.setUser(this);
         }
     }
 

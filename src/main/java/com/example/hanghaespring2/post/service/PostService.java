@@ -17,6 +17,7 @@ import com.example.hanghaespring2.post.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,8 +77,10 @@ public class PostService {
     }
 
     public PostDto.PostRes getPost(Long id) {
-        return this.postRepository.findById(id).orElseThrow(() ->
+        Post post = this.postRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("게시글이 존재하지 않습니다.")
-        ).res();
+        );
+
+        return post.res();
     }
 }

@@ -9,9 +9,14 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import javax.persistence.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static javax.persistence.FetchType.LAZY;
+
 @Getter
-@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class Post extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +30,9 @@ public class Post extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE)
+    private List<Reply> replies;
+
     public void setUser(User user) {
         if(this.user != null) {
             this.user.getPostList().remove(this);
@@ -32,6 +40,13 @@ public class Post extends Timestamped {
         this.user = user;
         if(!user.getPostList().contains(this)) {
             user.addPost(this);
+        }
+    }
+
+    public void addReply(Reply reply) {
+        this.replies.add(reply);
+        if (!reply.getPost().equals(this)) {
+            reply.setPost(this);
         }
     }
 
@@ -43,12 +58,14 @@ public class Post extends Timestamped {
     }
 
     public PostDto.PostRes res () {
+
         return PostDto.PostRes
                 .builder()
                 .id(this.id)
                 .content(this.content)
                 .title(this.title)
                 .username(this.user.getUsername())
+                .replies(this.getReplies())
                 .createdAt(this.getCreatedAt())
                 .build();
     }
