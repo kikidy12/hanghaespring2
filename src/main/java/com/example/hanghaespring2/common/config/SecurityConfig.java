@@ -36,7 +36,7 @@ public class SecurityConfig{
                 .mvcMatchers("/docs/**")
                 .mvcMatchers("/version")
                 .mvcMatchers("/swagger-ui/**")
-                .requestMatchers(PathRequest.toH2Console())
+                .mvcMatchers("/h2-console/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
@@ -51,7 +51,7 @@ public class SecurityConfig{
                 .antMatchers("/api/signup", "/api/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{id}").permitAll()
-                .antMatchers("api/**").authenticated()
+                .antMatchers("/api/**").authenticated()
 
                 .and()
                 .sessionManagement()
