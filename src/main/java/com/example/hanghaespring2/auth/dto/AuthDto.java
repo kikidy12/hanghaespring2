@@ -21,6 +21,8 @@ public class AuthDto {
 
         @Schema(defaultValue = "USER")
         private final UserRoleEnum role;
+
+        private final String adminToken;
     }
 
     @Getter

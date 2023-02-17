@@ -25,7 +25,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-
     @PostMapping("/signup")
     @SecurityRequirements()
     public ResponseDto<UserDto.UserRes> addUser(@RequestBody @Valid AuthDto.UserAdd dto) {

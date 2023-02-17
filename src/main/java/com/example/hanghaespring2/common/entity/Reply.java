@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,6 +29,9 @@ public class Reply extends Timestamped {
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    @OneToMany(mappedBy = "reply", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ReplyLikeUser> likeUsers;
 
     public void setUser(User user) {
         if(this.user != null) {
@@ -47,6 +53,7 @@ public class Reply extends Timestamped {
         }
     }
 
+
     public void setPostNull() {
         post = null;
     }
@@ -54,12 +61,24 @@ public class Reply extends Timestamped {
     @Builder
     public Reply(String message, User user, Post post) {
         this.message = message;
-        this.setUser(user);
-        this.setPost(post);
+        this.user = user;
+        this.post = post;
+    }
+
+    public void addLikeUser(ReplyLikeUser likeUser) {
+        this.likeUsers.add(likeUser);
+        if (!likeUser.getReply().equals(this)) {
+            likeUser.setReply(this);
+        }
+    }
+
+
+    public void removeLikeUser(User user) {
+        this.likeUsers.stream().filter(v -> v.getUser().getId().equals(user.getId())).findFirst().ifPresent(v -> this.likeUsers.remove(v));
     }
 
     public ReplyDto.ReplyRes res() {
-        return ReplyDto.ReplyRes.builder().id(this.id).message(this.message).build();
+        return ReplyDto.ReplyRes.builder().id(this.id).likeCount(this.likeUsers.size()).message(this.message).build();
     }
 
     public void update(String message) {

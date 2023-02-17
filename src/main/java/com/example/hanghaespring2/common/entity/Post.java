@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.annotations.SQLDelete;
 
 import javax.persistence.*;
 
@@ -27,21 +28,27 @@ public class Post extends Timestamped {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Reply> replies;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<PostLikeUser> likeUsers;
 
     public void setUser(User user) {
         if(this.user != null) {
             this.user.getPostList().remove(this);
         }
+
         this.user = user;
+
         if(!user.getPostList().contains(this)) {
             user.addPost(this);
         }
     }
+
 
     public void addReply(Reply reply) {
         this.replies.add(reply);
@@ -50,18 +57,23 @@ public class Post extends Timestamped {
         }
     }
 
-//    @PreRemove
-//    private void removeAssociationsWithChilds() {
-//        for (Reply e : replies) {
-//            e.setPostNull();
-//        }
-//    }
+    public void addLikeUser(PostLikeUser likeUser) {
+        this.likeUsers.add(likeUser);
+        if (!likeUser.getPost().equals(this)) {
+            likeUser.setPost(this);
+        }
+    }
+
+    public void removeLikeUser(User user) {
+        this.likeUsers.stream().filter(v -> v.getUser().getId().equals(user.getId())).findFirst().ifPresent(v -> this.likeUsers.remove(v));
+    }
 
 
     @Builder
-    public Post(PostDto.PostAdd dto) {
+    public Post(PostDto.PostAdd dto, User user) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
+        this.user = user;
     }
 
     public PostDto.PostRes res () {
@@ -73,6 +85,19 @@ public class Post extends Timestamped {
                 .title(this.title)
                 .username(this.user.getUsername())
                 .replies(this.getReplies())
+                .likeCount(this.likeUsers.size())
+                .createdAt(this.getCreatedAt())
+                .build();
+    }
+
+    public PostDto.PostResNoReply resNoReply () {
+
+        return PostDto.PostResNoReply
+                .builder()
+                .id(this.id)
+                .content(this.content)
+                .title(this.title)
+                .username(this.user.getUsername())
                 .createdAt(this.getCreatedAt())
                 .build();
     }

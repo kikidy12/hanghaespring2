@@ -13,6 +13,11 @@ public class ReplyDto {
     }
 
     @Getter
+    public static class UpdateReplyLike {
+        private Long replyId;
+    }
+
+    @Getter
     public static class ReplyUpdate {
         private String message;
     }
@@ -22,5 +27,7 @@ public class ReplyDto {
     public static class ReplyRes {
         private Long id;
         private String message;
+
+        private Integer likeCount;
     }
 }

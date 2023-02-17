@@ -1,6 +1,8 @@
-package com.example.hanghaespring2.common.jwt;
+package com.example.hanghaespring2.common.security.jwt;
 
 
+import com.example.hanghaespring2.common.entity.UserRoleEnum;
+import com.example.hanghaespring2.common.security.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -10,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,19 +31,21 @@ public class TokenProvider {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L;
+    private static final long TOKEN_TIME = 24 * 60 * 60 * 1000L;
+
+    private final CustomUserDetailService userDetailsService;
 
     private final Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-    public TokenProvider(@Value("${jwt.secret.key}") String secretKey) {
+    public TokenProvider(@Value("${jwt.secret.key}") String secretKey, CustomUserDetailService userDetailsService) {
+        this.userDetailsService = userDetailsService;
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
 
     // header 토큰을 가져오기
     public String resolveToken(HttpServletRequest request) {
-        System.out.println(request);
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
@@ -51,16 +54,13 @@ public class TokenProvider {
     }
 
     // 토큰 생성
-    public String createToken(Authentication authentication) {
+    public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(authentication.getName())
-                        .claim(AUTHORIZATION_KEY, authorities)
+                        .setSubject(username)
+                        .claim(AUTHORIZATION_KEY, role)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
@@ -81,6 +81,7 @@ public class TokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
+
         return false;
     }
 
@@ -96,8 +97,8 @@ public class TokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
     // 토큰에서 사용자 정보 가져오기
@@ -111,5 +112,12 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+
+    // 인증 객체 생성
+    public Authentication createAuthentication(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

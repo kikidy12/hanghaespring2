@@ -1,4 +1,4 @@
-package com.example.hanghaespring2.common.util;
+package com.example.hanghaespring2.common.security;
 
 import com.example.hanghaespring2.common.entity.User;
 import com.example.hanghaespring2.user.repository.UserRepository;

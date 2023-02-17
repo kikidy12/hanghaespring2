@@ -1,23 +1,21 @@
 package com.example.hanghaespring2.post.service;
 
-import com.example.hanghaespring2.auth.service.CustomUserDetailService;
-import com.example.hanghaespring2.common.entity.Post;
-import com.example.hanghaespring2.common.entity.User;
-import com.example.hanghaespring2.common.util.SecurityService;
+import com.example.hanghaespring2.common.entity.*;
+import com.example.hanghaespring2.common.security.SecurityService;
+import com.example.hanghaespring2.common.util.CustomClientException;
 import com.example.hanghaespring2.post.dto.PostDto;
 import com.example.hanghaespring2.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.example.hanghaespring2.post.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -27,39 +25,41 @@ public class PostService {
     private final SecurityService securityService;
 
     @Transactional
-    public PostDto.PostRes addPost(PostDto.PostAdd dto) {
+    public PostDto.PostResNoReply addPost(PostDto.PostAdd dto, User user) {
+        Post post = Post.builder().dto(dto).user(user).build();
 
-        User user = securityService.getUser();
-
-        Post post = Post.builder().dto(dto).build();
-
-        post.setUser(user);
-
-        return this.postRepository.save(post).res();
+        return this.postRepository.save(post).resNoReply();
     }
 
     @Transactional
-    public PostDto.PostRes updatePost(Long id, PostDto.PostUpdate dto) {
-
-        User user = securityService.getUser();
-
-        Post post = this.postRepository.findByIdAndUser_id(id, user.getId()).orElseThrow(() ->
-            new IllegalArgumentException("게시글이 존재하지 않습니다.")
+    public PostDto.PostResNoReply updatePost(Long id, PostDto.PostUpdate dto, User user) {
+        Post post = this.postRepository.findById(id).orElseThrow(() ->
+                new CustomClientException("게시글이 존재하지 않습니다.")
         );
+
+        if (user.getRole() != UserRoleEnum.ADMIN) {
+            if (post.getUser().getId().equals(user.getId())) {
+                throw new CustomClientException("작성자만 삭제/수정할 수 있습니다.");
+            }
+        }
 
         post.update(dto);
 
-        return post.res();
+        return post.resNoReply();
     }
 
     @Transactional
-    public void deletePost(Long id) {
+    public void deletePost(Long id, User user) {
 
-        User user = securityService.getUser();
+        Post post = this.postRepository.findById(id).orElseThrow(() ->
+                new CustomClientException("게시글이 존재하지 않습니다."));
 
-        Post post = this.postRepository.findByIdAndUser_id(id, user.getId()).orElseThrow(() ->
-                new IllegalArgumentException("게시글이 존재하지 않습니다.")
-        );
+        if (user.getRole() != UserRoleEnum.ADMIN) {
+            if (!post.getUser().getId().equals(user.getId())) {
+                throw new CustomClientException("작성자만 삭제/수정할 수 있습니다.");
+            }
+        }
+
 
         this.postRepository.deleteById(post.getId());
     }
@@ -78,9 +78,26 @@ public class PostService {
 
     public PostDto.PostRes getPost(Long id) {
         Post post = this.postRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("게시글이 존재하지 않습니다.")
+                new CustomClientException("게시글이 존재하지 않습니다.")
         );
 
         return post.res();
+    }
+
+    @Transactional
+    public void updateReplyLike(Long id, User user) {
+
+        Post post = postRepository.findByIdAndUser(id, user).orElseThrow(
+                () -> new CustomClientException("해당하는 게시물이 없습니다.")
+        );
+
+        if(post.getLikeUsers().stream().anyMatch(v -> Objects.equals(v.getUser().getId(), user.getId()))) {
+            post.removeLikeUser(user);
+            postRepository.save(post);
+        }
+        else {
+            PostLikeUser likeUser = PostLikeUser.builder().user(user).post(post).build();
+            post.addLikeUser(likeUser);
+        }
     }
 }

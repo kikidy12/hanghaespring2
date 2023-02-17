@@ -44,10 +44,12 @@ public class PostDto {
         private String content;
         private String username;
         private List<ReplyDto.ReplyRes> replies;
+        private Integer likeCount;
         private LocalDateTime createdAt;
 
+
         @Builder
-        public PostRes (Long id, String title, String content, String username, List<Reply> replies, LocalDateTime createdAt) {
+        public PostRes (Long id, String title, String content, String username, List<Reply> replies, Integer likeCount, LocalDateTime createdAt) {
             this.id = id;
             this.title = title;
             this.content = content;
@@ -55,6 +57,25 @@ public class PostDto {
             this.replies = ObjectUtils.defaultIfNull(replies, new ArrayList<Reply>()).stream().sorted((a, b) ->
                     b.getCreatedAt().compareTo(a.getCreatedAt())
             ).map(Reply::res).collect(Collectors.toList());
+            this.createdAt = createdAt;
+            this.likeCount = likeCount;
+        }
+    }
+
+    @Getter
+    public static class PostResNoReply {
+        private Long id;
+        private String title;
+        private String content;
+        private String username;
+        private LocalDateTime createdAt;
+
+        @Builder
+        public PostResNoReply (Long id, String title, String content, String username, LocalDateTime createdAt) {
+            this.id = id;
+            this.title = title;
+            this.content = content;
+            this.username = username;
             this.createdAt = createdAt;
         }
     }

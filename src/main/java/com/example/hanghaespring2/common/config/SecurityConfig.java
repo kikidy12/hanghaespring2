@@ -1,15 +1,12 @@
 package com.example.hanghaespring2.common.config;
 
-
-//import com.sparta.myselectshop.jwt.JwtAccessDeniedHandler;
-//import com.sparta.myselectshop.jwt.JwtAthenticationEntryPoint;
-//import com.sparta.myselectshop.jwt.JwtFilter;
-//import com.sparta.myselectshop.jwt.TokenProvider;
-import com.example.hanghaespring2.common.jwt.JwtAccessDeniedHandler;
-import com.example.hanghaespring2.common.jwt.JwtAthenticationEntryPoint;
-import com.example.hanghaespring2.common.jwt.JwtFilter;
-import com.example.hanghaespring2.common.jwt.TokenProvider;
+import com.example.hanghaespring2.common.security.CustomUserDetailService;
+import com.example.hanghaespring2.common.security.jwt.JwtAccessDeniedHandler;
+import com.example.hanghaespring2.common.security.jwt.JwtAthenticationEntryPoint;
+import com.example.hanghaespring2.common.security.jwt.JwtFilter;
+import com.example.hanghaespring2.common.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,21 +20,24 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
-public class SecurityConfig {
-
-
+public class SecurityConfig{
     private final TokenProvider tokenProvider;
     private final JwtAthenticationEntryPoint jwtAtuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
+    private final CustomUserDetailService userDetailService;
+
     @Bean
     public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring().mvcMatchers(
-                "/api-docs/**",
-                "/swagger-ui/**"
-        );
+        return (web) -> web.ignoring()
+                .mvcMatchers("/api-docs")
+                .mvcMatchers("/docs/**")
+                .mvcMatchers("/version")
+                .mvcMatchers("/swagger-ui/**")
+                .requestMatchers(PathRequest.toH2Console())
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean
@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .antMatchers("/api/signup", "/api/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{id}").permitAll()
-                .antMatchers("/api/**").hasRole("USER")
+                .anyRequest().authenticated()
 
                 .and()
                 .sessionManagement()
@@ -74,3 +74,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+
