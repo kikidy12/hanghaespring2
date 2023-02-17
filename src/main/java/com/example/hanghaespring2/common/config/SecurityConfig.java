@@ -51,7 +51,7 @@ public class SecurityConfig{
                 .antMatchers("/api/signup", "/api/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{id}").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("api/**").authenticated()
 
                 .and()
                 .sessionManagement()
