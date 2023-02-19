@@ -6,11 +6,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,11 +30,20 @@ public class Reply extends Timestamped {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @OneToMany(mappedBy = "reply", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<ReplyLikeUser> likeUsers;
+    List<ReplyLikeUser> likeUsers = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt desc")
+    private List<Reply> children = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Reply parent;
 
     public void setUser(User user) {
         if(this.user != null) {
@@ -59,10 +71,11 @@ public class Reply extends Timestamped {
     }
 
     @Builder
-    public Reply(String message, User user, Post post) {
+    public Reply(String message, User user, Post post, Reply parent) {
         this.message = message;
         this.user = user;
         this.post = post;
+        this.parent = parent;
     }
 
     public void addLikeUser(ReplyLikeUser likeUser) {
@@ -78,9 +91,21 @@ public class Reply extends Timestamped {
     }
 
     public ReplyDto.ReplyRes res() {
-        return ReplyDto.ReplyRes.builder().id(this.id).likeCount(this.likeUsers.size()).message(this.message).build();
-    }
+        ReplyDto.ReplyRes.ReplyResBuilder builder = ReplyDto.ReplyRes.builder();
 
+        builder
+                .id(this.id)
+                .likeCount(this.likeUsers.size())
+                .message(this.message);
+
+        if (!this.children.isEmpty()) {
+            builder.children(this.children.stream().map(Reply::res).collect(Collectors.toList()));
+        }
+        else {
+            builder.children(new ArrayList<>());
+        }
+        return builder.build();
+    }
     public void update(String message) {
         this.message = message;
     }

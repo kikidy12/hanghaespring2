@@ -1,7 +1,6 @@
 package com.example.hanghaespring2.common.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;

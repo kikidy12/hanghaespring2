@@ -30,6 +30,14 @@ public class ReplyController {
         return ResponseDto.of(HttpStatus.OK, "댓글 등록 성공", replyService.addReply(dto, userDetail.getUser()));
     }
 
+    @PostMapping("/child")
+    public ResponseDto<ReplyDto.ReplyRes> addReply(
+            @RequestBody ReplyDto.ChildReplyAdd dto,
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetail userDetail
+    ) {
+        return ResponseDto.of(HttpStatus.OK, "대댓글 등록 성공", replyService.addChildReply(dto, userDetail.getUser()));
+    }
+
     @PutMapping("/{id}")
     public ResponseDto<ReplyDto.ReplyRes> updateReply(
             @PathVariable Long id,

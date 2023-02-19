@@ -7,6 +7,7 @@ import com.example.hanghaespring2.common.security.CustomUserDetail;
 import com.example.hanghaespring2.post.dto.PostDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,6 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @Secured(UserRoleEnum.Authority.USER)
     @PostMapping("/")
     public ResponseDto<PostDto.PostResNoReply> addPost(
             @RequestBody PostDto.PostAdd dto,

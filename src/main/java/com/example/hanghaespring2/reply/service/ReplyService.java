@@ -29,11 +29,21 @@ public class ReplyService {
                 () -> new IllegalArgumentException("해당하는 게시글이 없습니다.")
         );
 
-        System.out.println(user.getRole().getAuthority());
-
         Reply reply = Reply.builder().message(dto.getMessage()).user(user).post(post).build();
 
         return replyRepository.save(reply).res();
+    }
+
+    @Transactional
+    public ReplyDto.ReplyRes addChildReply(ReplyDto.ChildReplyAdd dto, User user) {
+
+        Reply parent = replyRepository.findById(dto.getParentId()).orElseThrow(
+                () -> new IllegalArgumentException("해당하는 댓글이 없습니다.")
+        );
+
+        Reply child = Reply.builder().message(dto.getMessage()).user(user).parent(parent).build();
+
+        return replyRepository.save(child).res();
     }
 
     @Transactional

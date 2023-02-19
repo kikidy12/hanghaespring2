@@ -37,7 +37,7 @@ public class SecurityConfig{
                 .mvcMatchers("/version")
                 .mvcMatchers("/swagger-ui/**")
                 .mvcMatchers("/h2-console/**")
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .mvcMatchers("/public");
     }
 
     @Bean
@@ -51,6 +51,7 @@ public class SecurityConfig{
                 .antMatchers("/api/signup", "/api/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{id}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/category/{id}").permitAll()
                 .antMatchers("/api/**").authenticated()
 
                 .and()

@@ -1,6 +1,7 @@
 package com.example.hanghaespring2.common.entity;
 
 import com.example.hanghaespring2.post.dto.PostDto;
+import jdk.jfr.Category;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,10 +33,15 @@ public class Post extends Timestamped {
     private User user;
 
     @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OrderBy("createdAt desc")
     private List<Reply> replies;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<PostLikeUser> likeUsers;
+    private List<PostLikeUser> likeUsers;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private PostCategory category;
 
     public void setUser(User user) {
         if(this.user != null) {
@@ -70,10 +76,11 @@ public class Post extends Timestamped {
 
 
     @Builder
-    public Post(PostDto.PostAdd dto, User user) {
+    public Post(PostDto.PostAdd dto, User user, PostCategory category) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.user = user;
+        this.category = category;
     }
 
     public PostDto.PostRes res () {
@@ -85,6 +92,7 @@ public class Post extends Timestamped {
                 .title(this.title)
                 .username(this.user.getUsername())
                 .replies(this.getReplies())
+                .category(this.category)
                 .likeCount(this.likeUsers.size())
                 .createdAt(this.getCreatedAt())
                 .build();
@@ -96,6 +104,7 @@ public class Post extends Timestamped {
                 .builder()
                 .id(this.id)
                 .content(this.content)
+                .category(this.category)
                 .title(this.title)
                 .username(this.user.getUsername())
                 .createdAt(this.getCreatedAt())

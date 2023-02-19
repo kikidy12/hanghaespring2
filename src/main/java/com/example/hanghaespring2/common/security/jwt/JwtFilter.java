@@ -25,29 +25,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
 
-        String token = jwtUtil.resolveToken(request);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
 
-        if(token != null) {
-            if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, "토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST.value());
-                return;
+            if (jwtUtil.validateToken(token)) {
+                Authentication authentication = jwtUtil.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Check if token is about to expire and issue a new one
+                if (jwtUtil.isTokenAboutToExpire(token)) {
+                    String refreshedToken = jwtUtil.refreshToken(token);
+                    response.setHeader(TokenProvider.AUTHORIZATION_HEADER, "Bearer " + refreshedToken);
+                }
             }
-            Claims info = jwtUtil.getUserInfoFromToken(token);
-            setAuthentication(info.getSubject());
         }
-        filterChain.doFilter(request,response);
 
-
-    }
-
-
-    public void setAuthentication(String username) {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = jwtUtil.createAuthentication(username);
-        context.setAuthentication(authentication);
-
-        SecurityContextHolder.setContext(context);
+        filterChain.doFilter(request, response);
     }
 
     public void jwtExceptionHandler(HttpServletResponse response, String msg, int statusCode) {

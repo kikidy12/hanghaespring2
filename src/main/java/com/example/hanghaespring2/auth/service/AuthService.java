@@ -3,6 +3,7 @@ package com.example.hanghaespring2.auth.service;
 import com.example.hanghaespring2.auth.dto.AuthDto;
 import com.example.hanghaespring2.common.entity.User;
 import com.example.hanghaespring2.common.entity.UserRoleEnum;
+import com.example.hanghaespring2.common.security.CustomUserDetailService;
 import com.example.hanghaespring2.common.security.jwt.TokenProvider;
 import com.example.hanghaespring2.common.util.CustomClientException;
 import com.example.hanghaespring2.user.dto.UserDto;
@@ -58,8 +59,13 @@ public class AuthService {
             throw new CustomClientException("회원을 찾을 수 없습니다");
         }
 
-        response.addHeader(TokenProvider.AUTHORIZATION_HEADER, tokenProvider.createToken(user.getUsername(), user.getRole()));
+        response.addHeader(TokenProvider.ACCESS_TOKEN, tokenProvider.createToken(dto.getUsername(), dto.getRole()));
+        response.addHeader(TokenProvider.REFRESH_TOKEN, tokenProvider.createRefreshToken(dto.getUsername(), dto.getRole()));
 
         return UserDto.UserRes.builder().user(user).build();
+    }
+
+    public void  withdrawal(User user) {
+        this.userRepository.delete(user);
     }
 }

@@ -30,10 +30,10 @@ public class User extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "user", fetch = LAZY)
+    @OneToMany(mappedBy = "user", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Post> postList;
 
-    @OneToMany(mappedBy = "user", fetch = LAZY)
+    @OneToMany(mappedBy = "user", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> replies;
 
     public void addPost(Post post) {

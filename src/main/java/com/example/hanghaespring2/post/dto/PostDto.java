@@ -1,8 +1,11 @@
 package com.example.hanghaespring2.post.dto;
 
+import com.example.hanghaespring2.common.entity.PostCategory;
 import com.example.hanghaespring2.common.entity.Reply;
 import com.example.hanghaespring2.common.entity.User;
+import com.example.hanghaespring2.postCategory.dto.PostCategoryDto;
 import com.example.hanghaespring2.reply.dto.ReplyDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,19 +20,24 @@ import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 public class PostDto {
     @Getter
-    @AllArgsConstructor
     public static class PostAdd {
+
+
+        @Schema(defaultValue = "게시글 제목!!")
         String title;
 
         String content;
+
+        Long categoryId;
     }
 
     @Getter
-    @AllArgsConstructor
     public static class PostUpdate {
         String title;
 
@@ -47,18 +55,19 @@ public class PostDto {
         private Integer likeCount;
         private LocalDateTime createdAt;
 
+        private PostCategoryDto.PostCategoryRes category;
+
 
         @Builder
-        public PostRes (Long id, String title, String content, String username, List<Reply> replies, Integer likeCount, LocalDateTime createdAt) {
+        public PostRes (Long id, String title, String content, String username, List<Reply> replies, PostCategory category, Integer likeCount, LocalDateTime createdAt) {
             this.id = id;
             this.title = title;
             this.content = content;
             this.username = username;
-            this.replies = ObjectUtils.defaultIfNull(replies, new ArrayList<Reply>()).stream().sorted((a, b) ->
-                    b.getCreatedAt().compareTo(a.getCreatedAt())
-            ).map(Reply::res).collect(Collectors.toList());
+            this.replies = ObjectUtils.defaultIfNull(replies, new ArrayList<Reply>()).stream().map(Reply::res).collect(Collectors.toList());
             this.createdAt = createdAt;
             this.likeCount = likeCount;
+            this.category = Optional.ofNullable(category).map(PostCategory::resNoPost).orElse(null);
         }
     }
 
@@ -68,14 +77,17 @@ public class PostDto {
         private String title;
         private String content;
         private String username;
+
+        private PostCategoryDto.PostCategoryRes category;
         private LocalDateTime createdAt;
 
         @Builder
-        public PostResNoReply (Long id, String title, String content, String username, LocalDateTime createdAt) {
+        public PostResNoReply (Long id, String title, String content, String username, PostCategory category, LocalDateTime createdAt) {
             this.id = id;
             this.title = title;
             this.content = content;
             this.username = username;
+            this.category = Optional.ofNullable(category).map(PostCategory::resNoPost).orElse(null);
             this.createdAt = createdAt;
         }
     }

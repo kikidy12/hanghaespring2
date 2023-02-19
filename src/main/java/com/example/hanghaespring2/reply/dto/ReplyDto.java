@@ -5,11 +5,20 @@ import com.example.hanghaespring2.common.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ReplyDto {
     @Getter
     public static class ReplyAdd {
         private String message;
         private Long postId;
+    }
+
+    @Getter
+    public static class ChildReplyAdd {
+        private String message;
+        private Long parentId;
     }
 
     @Getter
@@ -29,5 +38,7 @@ public class ReplyDto {
         private String message;
 
         private Integer likeCount;
+
+        private List<ReplyRes> children = new ArrayList<>();
     }
 }

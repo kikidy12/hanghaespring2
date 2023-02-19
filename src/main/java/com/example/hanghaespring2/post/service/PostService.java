@@ -4,6 +4,7 @@ import com.example.hanghaespring2.common.entity.*;
 import com.example.hanghaespring2.common.security.SecurityService;
 import com.example.hanghaespring2.common.util.CustomClientException;
 import com.example.hanghaespring2.post.dto.PostDto;
+import com.example.hanghaespring2.postCategory.repository.PostCategoryRepository;
 import com.example.hanghaespring2.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +22,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
-    private final SecurityService securityService;
+    private final PostCategoryRepository postCategoryRepository;
 
     @Transactional
     public PostDto.PostResNoReply addPost(PostDto.PostAdd dto, User user) {
-        Post post = Post.builder().dto(dto).user(user).build();
+        PostCategory category = this.postCategoryRepository.findById(dto.getCategoryId()).orElseThrow(() ->
+                new CustomClientException("카테고리가 존재하지 않습니다.")
+        );
+        Post post = Post.builder().dto(dto).user(user).category(category).build();
 
         return this.postRepository.save(post).resNoReply();
     }

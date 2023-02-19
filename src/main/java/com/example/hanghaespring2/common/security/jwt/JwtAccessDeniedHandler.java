@@ -24,7 +24,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, org.springframework.security.access.AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-
         log.info("Access Denied!!! message : {}" + accessDeniedException.getMessage(), request.getRequestURI());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
