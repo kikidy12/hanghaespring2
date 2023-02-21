@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.hanghaespring2.post.service.PostService;
 
 import java.util.List;
+import java.util.Set;
 
 @Tag(name = "Post")
 @RestController
@@ -36,7 +37,7 @@ public class PostController {
 
     @GetMapping("/")
     @SecurityRequirements()
-    public ResponseDto<List<PostDto.PostRes>> getPosts(
+    public ResponseDto<Set<PostDto.PostRes>> getPosts(
             @Parameter(example = "1") int page,
             @Parameter(example = "10") int size,
             @Parameter(example = "title") String sortBy,

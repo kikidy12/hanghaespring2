@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import javax.persistence.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static javax.persistence.FetchType.LAZY;
@@ -32,12 +33,12 @@ public class Post extends Timestamped {
     @JoinColumn(nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "post", fetch = LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @OrderBy("createdAt desc")
-    private List<Reply> replies;
+    private Set<Reply> replies;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLikeUser> likeUsers;
+    private Set<PostLikeUser> likeUsers;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

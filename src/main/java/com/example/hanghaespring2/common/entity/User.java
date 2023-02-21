@@ -2,13 +2,11 @@ package com.example.hanghaespring2.common.entity;
 
 import com.example.hanghaespring2.auth.dto.AuthDto;
 import com.example.hanghaespring2.user.dto.UserDto;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -31,10 +29,10 @@ public class User extends Timestamped {
     private UserRoleEnum role;
 
     @OneToMany(mappedBy = "user", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Post> postList;
+    private Set<Post> postList;
 
     @OneToMany(mappedBy = "user", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reply> replies;
+    private Set<Reply> replies;
 
     public void addPost(Post post) {
         this.postList.add(post);

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -34,12 +35,13 @@ public class Reply extends Timestamped {
     private Post post;
 
     @OneToMany(mappedBy = "reply", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<ReplyLikeUser> likeUsers = new ArrayList<>();
+    private Set<ReplyLikeUser> likeUsers;
 
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt desc")
-    private List<Reply> children = new ArrayList<>();
+    @BatchSize(size = 100)
+    private Set<Reply> children;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

@@ -15,12 +15,16 @@ import org.springframework.stereotype.Service;
 import com.example.hanghaespring2.post.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository postRepository;
     private final PostCategoryRepository postCategoryRepository;
 
@@ -69,20 +73,32 @@ public class PostService {
 
 
     @Transactional(readOnly = true)
-    public List<PostDto.PostRes> getPosts(int page, int size, String sortBy, boolean isAsc) {
-
+    public Set<PostDto.PostRes> getPosts(int page, int size, String sortBy, boolean isAsc) {
         // 페이징 처리
-        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+//        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+//        Sort sort = Sort.by(direction, sortBy);
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//
+//        return this.postRepository.findAll(pageable).map(Post::res).stream().toList();
 
-        return this.postRepository.findAll(pageable).map(Post::res).stream().toList();
+
+        System.out.println("======start=====");
+        Set<Post> postSet = this.postRepository.selectAllJPQL();
+        System.out.println("======end=====");
+        return postSet.stream().map(Post::res).collect(Collectors.toSet());
     }
 
     public PostDto.PostRes getPost(Long id) {
-        Post post = this.postRepository.findById(id).orElseThrow(() ->
-                new CustomClientException("게시글이 존재하지 않습니다.")
-        );
+
+
+
+        System.out.println("============start=============");
+        Post post = this.postRepository.selectJPQL(id);
+        System.out.println("============second=============");
+
+//        Post post = this.postRepository.findById(id).orElseThrow(() ->
+//                new CustomClientException("게시글이 존재하지 않습니다.")
+//        );
 
         return post.res();
     }

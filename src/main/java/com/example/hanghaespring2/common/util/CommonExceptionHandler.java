@@ -27,7 +27,6 @@ public class CommonExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ErrorResponse exception(Exception e, HttpServletRequest request) {
-
         log.warn("Exception 발생!!! url:{}, trace:{}",request.getRequestURI(), e.getStackTrace());
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
@@ -61,6 +60,7 @@ public class CommonExceptionHandler {
      * @valid  유효성체크에 통과하지 못하면  MethodArgumentNotValidException 이 발생한다.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> aaaException(MethodArgumentNotValidException e, HttpServletRequest request){
         log.warn("MethodArgumentNotValidException 발생!!! url:{}, trace:{}",request.getRequestURI(), e.getStackTrace());
         ErrorResponse errorResponse = makeErrorResponse(e.getBindingResult());
@@ -92,6 +92,6 @@ public class CommonExceptionHandler {
             }
         }
 
-        return new ErrorResponse(code, description, detail);
+        return new ErrorResponse(code, description);
     }
 }

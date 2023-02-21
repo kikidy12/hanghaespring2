@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -59,7 +60,7 @@ public class PostDto {
 
 
         @Builder
-        public PostRes (Long id, String title, String content, String username, List<Reply> replies, PostCategory category, Integer likeCount, LocalDateTime createdAt) {
+        public PostRes (Long id, String title, String content, String username, Set<Reply> replies, PostCategory category, Integer likeCount, LocalDateTime createdAt) {
             this.id = id;
             this.title = title;
             this.content = content;

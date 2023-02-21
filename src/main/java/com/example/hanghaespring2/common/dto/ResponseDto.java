@@ -21,7 +21,7 @@ public class ResponseDto<T> {
                 .build();
     }
 
-    public static<T> ResponseDto<T> of(final HttpStatus code, final String message, final T data) {
+    public static <T> ResponseDto<T> of(final HttpStatus code, final String message, final T data) {
         return ResponseDto.<T>builder()
                 .data(data)
                 .code(code.value())
