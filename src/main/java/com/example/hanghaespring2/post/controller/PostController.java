@@ -37,7 +37,7 @@ public class PostController {
 
     @GetMapping("/")
     @SecurityRequirements()
-    public ResponseDto<Set<PostDto.PostRes>> getPosts(
+    public ResponseDto<List<PostDto.PostRes>> getPosts(
             @Parameter(example = "1") int page,
             @Parameter(example = "10") int size,
             @Parameter(example = "title") String sortBy,

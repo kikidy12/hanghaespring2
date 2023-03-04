@@ -1,6 +1,7 @@
 package com.example.hanghaespring2.common.entity;
 
 import com.example.hanghaespring2.post.dto.PostDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jdk.jfr.Category;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,18 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
-
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Document(indexName = "post")
 public class Post extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class Post extends Timestamped {
     @OrderBy("createdAt desc")
     private Set<Reply> replies;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostLikeUser> likeUsers;
 
     @ManyToOne

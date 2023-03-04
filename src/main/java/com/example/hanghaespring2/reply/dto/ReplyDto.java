@@ -31,7 +31,6 @@ public class ReplyDto {
         private String message;
     }
 
-    @Builder
     @Getter
     public static class ReplyRes {
         private Long id;
@@ -40,5 +39,18 @@ public class ReplyDto {
         private Integer likeCount;
 
         private List<ReplyRes> children = new ArrayList<>();
+
+        @Builder
+        public ReplyRes(Long id, String message, Integer likeCount, List<ReplyRes> children) {
+            this.id = id;
+            this.message = message;
+            this.likeCount = likeCount;
+            this.children = children;
+        }
+
+        public ReplyRes(Long id, String message) {
+            this.id = id;
+            this.message = message;
+        }
     }
 }

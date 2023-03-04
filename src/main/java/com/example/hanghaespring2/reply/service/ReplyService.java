@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,7 +90,6 @@ public class ReplyService {
 
         if(reply.getLikeUsers().stream().anyMatch(v -> Objects.equals(v.getUser().getId(), user.getId()))) {
             reply.removeLikeUser(user);
-            replyRepository.save(reply);
         }
         else {
             ReplyLikeUser likeUser = ReplyLikeUser.builder().user(user).reply(reply).build();

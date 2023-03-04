@@ -9,6 +9,7 @@ class PostServiceTest {
 
     @Test
     void addPost() {
+        System.out.println("test");
     }
 
     @Test

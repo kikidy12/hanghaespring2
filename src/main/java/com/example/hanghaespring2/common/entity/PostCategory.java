@@ -23,7 +23,7 @@ public class PostCategory extends Timestamped {
 
     private String name;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category")
     List<Post> postList = new ArrayList<>();
 
     @Builder

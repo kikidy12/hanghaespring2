@@ -1,10 +1,13 @@
 package com.example.hanghaespring2.post.dto;
 
+import com.example.hanghaespring2.common.entity.Post;
 import com.example.hanghaespring2.common.entity.PostCategory;
 import com.example.hanghaespring2.common.entity.Reply;
 import com.example.hanghaespring2.common.entity.User;
 import com.example.hanghaespring2.postCategory.dto.PostCategoryDto;
 import com.example.hanghaespring2.reply.dto.ReplyDto;
+import com.example.hanghaespring2.user.dto.UserDto;
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,6 +61,20 @@ public class PostDto {
 
         private PostCategoryDto.PostCategoryRes category;
 
+        public PostRes (Post post) {
+            this.id = post.getId();
+            this.title = post.getTitle();
+            this.content = post.getContent();
+        }
+
+
+        public PostRes (Post post, UserDto.UserRes userRes, List<ReplyDto.ReplyRes> replyResSet) {
+            this.id = post.getId();
+            this.title = post.getTitle();
+            this.content = post.getContent();
+            this.username = userRes.getUsername();
+            this.replies = replyResSet;
+        }
 
         @Builder
         public PostRes (Long id, String title, String content, String username, Set<Reply> replies, PostCategory category, Integer likeCount, LocalDateTime createdAt) {

@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  app:
+    image: "my-app"
+    ports:
+      - "8080:8080"
+  nginx:
+    image: "nginx"
+    ports:
+      - "80:80"

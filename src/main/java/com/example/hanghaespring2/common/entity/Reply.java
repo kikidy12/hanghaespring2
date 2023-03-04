@@ -11,6 +11,7 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,11 +27,11 @@ public class Reply extends Timestamped {
 
     private String message;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -40,10 +41,9 @@ public class Reply extends Timestamped {
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt desc")
-    @BatchSize(size = 100)
     private Set<Reply> children;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Reply parent;
 
@@ -97,10 +97,10 @@ public class Reply extends Timestamped {
 
         builder
                 .id(this.id)
-                .likeCount(this.likeUsers.size())
+                .likeCount(ObjectUtils.defaultIfNull(this.likeUsers, new HashSet<>()).size())
                 .message(this.message);
 
-        if (!this.children.isEmpty()) {
+        if (this.children != null && !this.children.isEmpty()) {
             builder.children(this.children.stream().map(Reply::res).collect(Collectors.toList()));
         }
         else {
